@@ -1,4 +1,4 @@
-% JHEP bibliography style ver. 2.10
+% A modified JHEP bibliography style ver. 2.10
 %
 % The bibtex output produced by inSPIRE, while far from perfect, is pretty
 % suitable for use with this style. Indeed, this style was designed with
@@ -6,6 +6,7 @@
 %
 %
 %
+% Copyright 2020 Matthew Kirk
 % Copyright 2015 SISSA Medialab
 %
 % This work may be distributed and/or modified under the
@@ -16,12 +17,16 @@
 % and version 1.3 or later is part of all distributions of LaTeX
 % version 2005/12/01 or later.
 %
-% This work has the LPPL maintenance status `author-maintained'.
+% This work has the LPPL maintenance status `maintained'.
 %
 % The Current Maintainer of this work is
-% SISSA Medialab <info@medialab.sissa.it>
+% Matthew Kirk <matthew.kirk@roma1.infn.it>
 %
-% This work consists of the file JHEP.bst.
+% This work consists of the file JHEP_MJKirk.bst.
+%
+% Changes relative to JHEP v2.10
+% - URls outputed using \url command rather than \href
+% - mastersthesis, misc, and phdthesis will include the URL if given
 
 
 ENTRY
@@ -241,7 +246,7 @@ FUNCTION {format.url}
 {
   url empty$
   {""}
-  {"\href{" url * "}{" * url * "}" *}
+  {"\url{" url * "}" *}
   if$
 }
 
@@ -962,6 +967,7 @@ FUNCTION {mastersthesis}
   address output
   format.date "year" output.check
   new.block
+  format.url output
   % note output
   doi output
   fin.entry
@@ -986,6 +992,7 @@ FUNCTION {misc}
   format.date output
   new.block
   % note output
+  format.url output
   doi output
   fin.entry
   empty.misc.check
@@ -1001,6 +1008,7 @@ FUNCTION {phdthesis}
   format.date "year" output.check
   new.block
   format.eprint output
+  format.url output
   new.block
   % note output
   doi output

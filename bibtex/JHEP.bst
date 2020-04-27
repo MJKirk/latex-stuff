@@ -1,4 +1,4 @@
-% JHEP bibliography style ver. 2.10
+% JHEP bibliography style ver. 2.11
 %
 % The bibtex output produced by inSPIRE, while far from perfect, is pretty
 % suitable for use with this style. Indeed, this style was designed with
@@ -339,6 +339,8 @@ FUNCTION {format.editors}
   if$
 }
 
+%% TODO: change.case$ is probably not a good idea...
+%%       see typeset/scripts/tests/JHEP.bst/src/bibitem-3127.bib
 FUNCTION {format.title}
 { title empty$
     { "" }
@@ -816,43 +818,6 @@ FUNCTION {booklet}
   fin.entry
 }
 
-FUNCTION {inbook}
-{ output.bibitem
-  format.collaboration output
-  author empty$
-    { format.editors "author and editor" output.check }
-    { format.authors output.nonnull
-      crossref missing$
-	{ "author and editor" editor either.or.check }
-	'skip$
-      if$
-    }
-  if$
-  format.btitle "title" output.check
-  crossref missing$
-    { format.bvolume output
-      format.chapter.pages "chapter and pages" output.check
-      new.block
-      format.number.series output
-      new.block
-      publisher "publisher" output.check
-      address output
-    }
-    { format.chapter.pages "chapter and pages" output.check
-      new.block
-      format.book.crossref output.nonnull
-    }
-  if$
-  format.edition output
-  format.date "year" output.check
-  new.block
-  format.eprint output
-  new.block
-  % note output
-  doi output
-  fin.entry
-}
-
 FUNCTION {incollection}
 { output.bibitem
   format.author.or.collaboration
@@ -879,6 +844,8 @@ FUNCTION {incollection}
   if$
   fin.entry
 }
+
+FUNCTION {inbook} { incollection }
 
 FUNCTION {inproceedings}
 { output.bibitem

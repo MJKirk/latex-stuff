@@ -17,4 +17,4 @@ In [scripts](scripts) there is a useful script for checking for bibtex entries w
 
 ## Bibtex
 
-In [bibtex](bibtex) I keep my personal bibtex style file - based on the JHEP one, but with a few changes I've made. The branch JHEP-bst-updates branch contains the unmodifed JHEP versions.
+In [bibtex](bibtex) I keep my personal bibtex style file - based on the JHEP one, but with a few changes I've made. The JHEP-bst-updates branch contains the unmodifed JHEP versions.

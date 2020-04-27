@@ -14,3 +14,7 @@ Copyright for the various logos belongs to the respective universities / organis
 ## Scripts
 
 In [scripts](scripts) there is a useful script for checking for bibtex entries with missing DOIs. I generally use it to update the bibtex between writing the preprint and submitting to a journal, or when updating the arXiv version after acceptance.
+
+## Bibtex
+
+In [bibtex](bibtex) I keep my personal bibtex style file - based on the JHEP one, but with a few changes I've made. The branch JHEP-bst-updates branch contains the unmodifed JHEP versions.

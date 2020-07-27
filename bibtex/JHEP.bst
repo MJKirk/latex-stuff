@@ -1,4 +1,4 @@
-% JHEP bibliography style ver. 2.11
+% JHEP bibliography style ver. 2.12
 %
 % The bibtex output produced by inSPIRE, while far from perfect, is pretty
 % suitable for use with this style. Indeed, this style was designed with
@@ -928,9 +928,11 @@ FUNCTION {mastersthesis}
   school "school" output.check
   address output
   format.date "year" output.check
-  new.block
-  % note output
-  doi output
+  doi empty$
+    {}
+    { format.doi "{" * doi * "}" * "DOI" output.check }
+  if$
+  format.eprint.paren output
   fin.entry
 }
 

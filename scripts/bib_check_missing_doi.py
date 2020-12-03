@@ -11,8 +11,25 @@ from pybtex.database import parse_file
 filename = sys.argv[1]
 bibs = parse_file(filename)
 
+missing_articles = []
+missing_others = []
+
 for e in bibs.entries:
-    if ( bibs.entries[e].type == "article" and 
-         "doi" not in bibs.entries[e].fields and 
-         "eprint" in bibs.entries[e].fields ):
+    if "doi" not in bibs.entries[e].fields:
+        if bibs.entries[e].type == "article":
+            missing_articles.append(e)
+        else:
+            missing_others.append(e)
+
+print("Articles missing DOIs:")
+for e in missing_articles:
+    if "eprint" in bibs.entries[e].fields:
         print (e, bibs.entries[e].fields["eprint"])
+    else:
+        print(e, bibs.entries[e].fields["title"])
+
+print("")
+print("Others missing DOIs:")
+for e in missing_others:
+    print(e, bibs.entries[e].fields["title"])
+

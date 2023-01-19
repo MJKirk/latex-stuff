@@ -1,4 +1,4 @@
-% A modified JHEP bibliography style ver. 2.10
+% A modified JHEP bibliography style ver. 2.18
 %
 % The bibtex output produced by inSPIRE, while far from perfect, is pretty
 % suitable for use with this style. Indeed, this style was designed with
@@ -20,11 +20,11 @@
 % This work has the LPPL maintenance status `maintained'.
 %
 % The Current Maintainer of this work is
-% Matthew Kirk <matthew.kirk@roma1.infn.it>
+% Matthew Kirk <mjkirk@icc.ub.edu>
 %
 % This work consists of the file JHEP_MJKirk.bst.
 %
-% Changes relative to JHEP v2.10
+% Changes relative to JHEP v2.18
 % - URls outputed using \url command rather than \href
 % - mastersthesis, misc, and phdthesis will include the URL if given
 
@@ -75,33 +75,34 @@ FUNCTION {init.state.consts}
   #5 'after.block :=
 }
 
-STRINGS { s t ref }
+STRINGS { s t ref z }
 
 FUNCTION {output.nonnull}
-{ 's :=
+{
+  's :=
   output.state mid.sentence =
     { ", " * write$ }
     { output.state after.quote =
-	{ " " * write$ }
-	{ output.state after.block =
-	    { add.period$ write$
-	      newline$
-	      "\newblock " write$
-	    }
-	    { output.state before.all =
-		'write$
-		{ output.state after.quoted.block =
-		    { write$
-		      newline$
-		      "\newblock " write$
-		    }
-		    { add.period$ " " * write$ }
-		  if$
-		}
+	    { " " * write$ }
+	    { output.state after.block =
+	        { add.period$ write$
+	          newline$
+	          "\newblock " write$
+	        }
+	        { output.state before.all =
+		        'write$
+		        { output.state after.quoted.block =
+		            { write$
+		              newline$
+		              "\newblock " write$
+		            }
+		            { add.period$ " " * write$ }
+		          if$
+		        }
+	          if$
+	        }
 	      if$
 	    }
-	  if$
-	}
       if$
       mid.sentence 'output.state :=
     }
@@ -251,7 +252,37 @@ FUNCTION {format.url}
 }
 
 
+%% from http://mirrors.ctan.org/biblio/bibtex/contrib/doc/btxFAQ.pdf Q.35
+%% from Philip G. Ratcliffe on the newsgroup comp.text.tex on June 28, 2002
+%% in the thread “BiBTeX, bst hackers, format.name$, please help”.
+FUNCTION {remove.spaces}
+{ 'z :=
+  ""
+  { z empty$ not }
+  { z #1 #1 substring$
+    z #2 global.max$ substring$ 'z :=
+    duplicate$ "~" =
+      'pop$
+      { duplicate$ " " =
+          'pop$
+          { * }
+        if$
+      }
+    if$
+  }
+  while$
+}
+
 INTEGERS { nameptr namesleft numnames }
+
+FUNCTION {forname.format.string}
+{ "{f.}" }
+
+FUNCTION {surname.format.string}
+{ "{vv~}{ll}" }
+
+FUNCTION {jnrname.format.string}
+{ "{, jj}" }
 
 FUNCTION {format.names}
 { 's :=
@@ -259,11 +290,11 @@ FUNCTION {format.names}
   s num.names$ 'numnames :=
   numnames 'namesleft :=
     { namesleft #0 > }
-    % the following removes space betwee author's initials
-    % but also removes "-" (as in composite names)
-    % so we do not use it
-    % { s nameptr "{f{.}. }{vv~}{ll}{, jj}" format.name$ 't :=
-    { s nameptr "{f.~}{vv~}{ll}{, jj}" format.name$ 't :=
+    { s nameptr forname.format.string format.name$ remove.spaces
+      duplicate$ empty$ 'skip$ { "~" * } if$
+      s nameptr surname.format.string format.name$ *
+      s nameptr jnrname.format.string format.name$ *
+      't :=
       nameptr #1 >
 	{ namesleft #1 >
 	    { ", " * t * }
@@ -333,17 +364,20 @@ FUNCTION {format.report}
 
 
 FUNCTION {format.editors}
-{ editor empty$
+{
+  editor empty$
     { "" }
     { editor format.names
       editor num.names$ #1 >
-	{ ", eds." * }
-	{ ", ed." * }
+	    { ", eds." * }
+	    { ", ed." * }
       if$
     }
   if$
 }
 
+%% TODO: change.case$ is probably not a good idea...
+%%       see typeset/scripts/tests/JHEP.bst/src/bibitem-3127.bib
 FUNCTION {format.title}
 { title empty$
     { "" }
@@ -608,13 +642,15 @@ FUNCTION {empty.misc.check}
 }
 
 FUNCTION {format.tr.number}
-{ type empty$
+{
+  type empty$
     { "Tech. Rep." }
     'type
   if$
-  number empty$
-    { "l" change.case$ }
-    { number tie.or.space.connect }
+  output blank.sep
+  url empty$
+    { number }
+    { "\href{" url * "}{" * number * "}" * }
   if$
 }
 
@@ -721,6 +757,18 @@ FUNCTION {article}
 {
   output.bibitem
   format.author.or.collaboration
+  %% if there is no author,
+  %% print the editors
+  %% ok if there is no editor
+  author empty$
+    {
+      editor empty$
+        'skip$
+        { format.editors output }
+      if$
+    }
+    'skip$
+  if$
   format.title "title" output.check
   blank.sep
 
@@ -780,14 +828,15 @@ FUNCTION {book}
   crossref missing$
     { format.bvolume output
       format.number.series output
-      new.sentence
+      % new.sentence
       publisher "publisher" output.check
       address output
     }
     { format.book.crossref output.nonnull }
   if$
   format.edition output
-  format.date "year" output.check
+  blank.sep
+  format.date.paren "year" output.check
   doi empty$
     {}
     { format.doi "{" * doi * "}" * "DOI" output.check }
@@ -821,43 +870,6 @@ FUNCTION {booklet}
   fin.entry
 }
 
-FUNCTION {inbook}
-{ output.bibitem
-  format.collaboration output
-  author empty$
-    { format.editors "author and editor" output.check }
-    { format.authors output.nonnull
-      crossref missing$
-	{ "author and editor" editor either.or.check }
-	'skip$
-      if$
-    }
-  if$
-  format.btitle "title" output.check
-  crossref missing$
-    { format.bvolume output
-      format.chapter.pages "chapter and pages" output.check
-      new.block
-      format.number.series output
-      new.block
-      publisher "publisher" output.check
-      address output
-    }
-    { format.chapter.pages "chapter and pages" output.check
-      new.block
-      format.book.crossref output.nonnull
-    }
-  if$
-  format.edition output
-  format.date "year" output.check
-  new.block
-  format.eprint output
-  new.block
-  % note output
-  doi output
-  fin.entry
-}
-
 FUNCTION {incollection}
 { output.bibitem
   format.author.or.collaboration
@@ -871,19 +883,24 @@ FUNCTION {incollection}
       format.pages output
       organization output
       publisher output
-      format.date.paren "year" output.check
+      blank.sep format.date.paren.nomonth "year" output.check
     }
     { format.incoll.inproc.crossref output.nonnull
       format.pages output
     }
   if$
-  format.eprint output
+
   doi empty$
     { format.url output }
     { formatfull.doi output }
   if$
+
+  blank.sep format.eprint.paren output
+
   fin.entry
 }
+
+FUNCTION {inbook} { incollection }
 
 FUNCTION {inproceedings}
 { output.bibitem
@@ -910,10 +927,7 @@ FUNCTION {inproceedings}
     { formatfull.doi output }
   if$
 
-  doi empty$ url empty$ and
-    { format.eprint output }
-    { blank.sep format.eprint.paren output }
-  if$
+  blank.sep format.eprint.paren output
 
   fin.entry
 }
@@ -967,9 +981,12 @@ FUNCTION {mastersthesis}
   address output
   format.date "year" output.check
   new.block
-  format.url output
-  % note output
-  doi output
+  format.url.output
+  doi empty$
+    {}
+    { format.doi "{" * doi * "}" * "DOI" output.check }
+  if$
+  format.eprint.paren output
   fin.entry
 }
 
@@ -1038,17 +1055,17 @@ FUNCTION {proceedings}
 }
 
 FUNCTION {techreport}
-{ output.bibitem
+{
+  output.bibitem
   format.author.or.collaboration
   format.title "title" output.check
   blank.sep
-  format.tr.number output.nonnull
+  format.tr.number output
   institution "institution" output.check
-  address output
-  format.date "year" output.check
-  new.block
-  % note output
-  doi output
+  address "address" output.check
+  blank.sep
+  format.date.paren "year" output.check
+  formatfull.doi  output
   fin.entry
 }
 

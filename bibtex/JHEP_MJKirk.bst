@@ -6,7 +6,7 @@
 %
 %
 %
-% Copyright 2020 Matthew Kirk
+% Copyright 2023 Matthew Kirk
 % Copyright 2015 SISSA Medialab
 %
 % This work may be distributed and/or modified under the

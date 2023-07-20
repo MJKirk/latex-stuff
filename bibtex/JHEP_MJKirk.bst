@@ -981,7 +981,7 @@ FUNCTION {mastersthesis}
   address output
   format.date "year" output.check
   new.block
-  format.url.output
+  format.url output
   doi empty$
     {}
     { format.doi "{" * doi * "}" * "DOI" output.check }
